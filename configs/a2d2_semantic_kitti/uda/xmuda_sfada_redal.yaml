@@ -1,0 +1,65 @@
+MODEL_2D:
+  TYPE: "UNetResNet34"
+  DUAL_HEAD: True
+  NUM_CLASSES: 10
+MODEL_3D:
+  TYPE: "SCN"
+  DUAL_HEAD: True
+  NUM_CLASSES: 10
+DATASET_SOURCE:
+  TYPE: "A2D2SCN"
+  TRAIN: ("train",)
+  A2D2SCN:
+    preprocess_dir: ""
+DATASET_TARGET:
+  TYPE: "SemanticKITTISCN"
+  TRAIN: ("train",)
+  VAL: ("val",)
+  TEST: ("test",)
+  SemanticKITTISCN:
+    preprocess_dir: ""
+    semantic_kitti_dir: ""
+    pselab_paths: ("",)
+    label_mask_path: ""
+DATALOADER:
+  NUM_WORKERS: 4
+OPTIMIZER:
+  TYPE: "Adam"
+  BASE_LR: 0.001
+SCHEDULER:
+  TYPE: "MultiStepLR"
+  MultiStepLR:
+    gamma: 0.1
+    milestones: (80000, 90000)
+  MAX_ITERATION: 100000
+TRAIN:
+  BATCH_SIZE: 8
+  SUMMARY_PERIOD: 50
+  CHECKPOINT_PERIOD: 5000
+  CLASS_WEIGHTS: [1.89090012, 2.0585112, 3.1970535, 3.1111633, 1., 2.93751704, 1.92053733,
+                  1.47886874, 1.04654198, 1.78266561]
+  XMUDA:
+    lambda_xm_src: 0.0
+    lambda_xm_trg: 0.01
+    lambda_pl: 1.0
+    lambda_ce_trg: 1.0
+VAL:
+  BATCH_SIZE: 8
+  PERIOD: 1000
+OUTPUT_DIR: ""
+ADA:
+  ReDAL:
+    curvature_path: ""
+    supervoxel_path: ""
+    alpha: 1.0
+    beta: 0.0
+    gamma: 0.05
+    num_clusters: 10
+    decay_rate: 0.95
+  query_iters: [0.0,0.3]
+  budget: 3.0
+  save_dir: ""
+  query_function_name: 'get_label_mask_by_redal'
+  load_mask_from_disk: False
+  update_pselab: False
+  pselab_save_dir: ""
