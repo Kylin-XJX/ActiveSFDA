@@ -1,0 +1,66 @@
+MODEL_2D:
+  TYPE: "UNetResNet34"
+  NUM_CLASSES: 6
+  DUAL_HEAD: True
+MODEL_3D:
+  TYPE: "SCN"
+  NUM_CLASSES: 6
+  DUAL_HEAD: True
+DATASET_SOURCE:
+  TYPE: "NuScenesLidarSegSCN"
+  TRAIN: ("train_day",)
+  NuScenesLidarSegSCN:
+    preprocess_dir: ""
+    nuscenes_dir: ""  # only front cam images are needed
+DATASET_TARGET:
+  TYPE: "NuScenesLidarSegSCN"
+  TRAIN: ("train_night",)
+  VAL: ("val_night",)
+  TEST: ("test_night",)
+  NuScenesLidarSegSCN:
+    preprocess_dir: ""
+    nuscenes_dir: ""  # only front cam images are needed
+    pselab_paths: ("",)
+    label_mask_path: ""
+DATALOADER:
+  NUM_WORKERS: 4
+OPTIMIZER:
+  TYPE: "Adam"
+  BASE_LR: 0.001
+SCHEDULER:
+  TYPE: "MultiStepLR"
+  MultiStepLR:
+    gamma: 0.1
+    milestones: (80000, 90000)
+  MAX_ITERATION: 100000
+TRAIN:
+  BATCH_SIZE: 8
+  SUMMARY_PERIOD: 50
+  CHECKPOINT_PERIOD: 5000
+  CLASS_WEIGHTS: [1.97516268, 1., 2.10103946, 2.05838738, 1.53985452, 1.54031246]
+  XMUDA:
+    lambda_xm_src: 0.0
+    lambda_xm_trg: 0.1
+    lambda_pl: 1.0
+    lambda_ce_trg: 1.0
+VAL:
+  BATCH_SIZE: 32
+  PERIOD: 1000
+OUTPUT_DIR: ""
+ADA:
+  ReDAL:
+    curvature_path: ""
+    supervoxel_path: ""
+    alpha: 1.0
+    beta: 0.0
+    gamma: 0.05
+    num_clusters: 7
+    decay_rate: 0.95
+  query_iters: [0.0,0.3]
+  r_threshold: 0.85
+  budget: 3.0
+  save_dir: ""
+  query_function_name: 'get_label_mask_by_redal'
+  load_mask_from_disk: False
+  update_pselab: False
+  pselab_save_dir: ""

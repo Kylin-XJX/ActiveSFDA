@@ -1,0 +1,65 @@
+MODEL_2D:
+  TYPE: "UNetResNet34"
+  NUM_CLASSES: 6
+  DUAL_HEAD: True
+MODEL_3D:
+  TYPE: "SCN"
+  NUM_CLASSES: 6
+  DUAL_HEAD: True
+DATASET_SOURCE:
+  TYPE: "NuScenesLidarSegSCN"
+  TRAIN: ("train_day",)
+  NuScenesLidarSegSCN:
+    preprocess_dir: ""
+    nuscenes_dir: ""  # only front cam images are needed
+DATASET_TARGET:
+  TYPE: "NuScenesLidarSegSCN"
+  TRAIN: ("train_night",)
+  VAL: ("val_night",)
+  TEST: ("test_night",)
+  NuScenesLidarSegSCN:
+    preprocess_dir: "datasets/nuscenes/omniquerypreprocess/preprocess"
+    nuscenes_dir: "datasets/nuscenes"  # only front cam images are needed
+    pselab_paths: ("output/nuscenes_lidarseg/day_night/uda/xmuda/pselab_data/12-09_10-17-48.tatrain_night.npy",)
+    label_mask_path: ""
+DATALOADER:
+  NUM_WORKERS: 4
+OPTIMIZER:
+  TYPE: "Adam"
+  BASE_LR: 0.001
+SCHEDULER:
+  TYPE: "MultiStepLR"
+  MultiStepLR:
+    gamma: 0.1
+    milestones: (80000, 90000)
+  MAX_ITERATION: 100000
+TRAIN:
+  BATCH_SIZE: 8
+  SUMMARY_PERIOD: 50
+  CHECKPOINT_PERIOD: 5000
+  CLASS_WEIGHTS: [1.97516268, 1., 2.10103946, 2.05838738, 1.53985452, 1.54031246]
+  XMUDA:
+    lambda_xm_src: 0.0
+    lambda_xm_trg: 0.1
+    lambda_pl: 1.0
+    lambda_ce_trg: 1.0
+VAL:
+  BATCH_SIZE: 32
+  PERIOD: 1000
+OUTPUT_DIR: "output/@"
+ADA:
+  query_iters: [0.0,-1.0]
+  r_threshold: 0.85
+  budget: 3.0
+  save_dir: "ADA/mask/day_night/xmuda_sfada_feat_ent_daynight"
+  query_function_name: 'get_label_mask_by_feature_entropy_sam'
+  batch_size: 1
+  n_neighbors: 4
+  load_mask_from_disk: False
+  update_pselab: True
+  pselab_save_dir: "ADA/pselab/day_night/xmuda_sfada_feat_ent_daynight"
+SAM:
+  CKPT: "SAM/SAM_weights/sam_vit_h_4b8939.pth"
+  MODEL_TYPE: "vit_h"
+  IMG_SIZE: (225,400)
+  delete_road_mask: False
