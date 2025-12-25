@@ -15,7 +15,7 @@ base_model/
 datasets/
 output/
 
-SAM/SAM_weights/
+SAM/SAM_weights
 
 
 ADA/mask
